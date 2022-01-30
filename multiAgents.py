@@ -12,6 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+from tkinter.tix import DirSelectBox
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -74,7 +75,37 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+
+        # Less total food = higher score
+        # If newPos is in newFood, raise score
+        # Lower distance to scared ghost = higher score
+        
+        if successorGameState.isWin():
+            return float('inf')
+        
+        if successorGameState.isLose():
+            return float('-inf')
+
+        score = 0
+        x,y = newPos
+
+        #directX = -1
+        #directY = 0
+
+        #if newFood[x + directX][y + directY] == True:
+        #    score += 10000
+
+
+        
+
+        for ghost in newGhostStates:
+            distance = manhattanDistance(newPos, ghost.getPosition())
+            if ghost.scaredTimer > distance:
+                score += ghost.scaredTimer - distance
+            else:
+                score -= 10 / distance
+        print(score)
+        return score
 
 def scoreEvaluationFunction(currentGameState):
     """
