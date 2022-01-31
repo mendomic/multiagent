@@ -11,6 +11,7 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -73,7 +74,10 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
+        print(newScaredTimes)
+        print("yeet")
         return successorGameState.getScore()
+    
 
 def scoreEvaluationFunction(currentGameState):
     """
