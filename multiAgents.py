@@ -166,6 +166,37 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+        currentSuccessors = [gameState]
+        nextSuccessors = []
+        tempGhostSuccessors = []
+        for level in range(1, self.depth * 2 - 1):
+            # Pacman
+            if (level % 2 == 1):
+                for successor in currentSuccessors:
+                    for action in successor.getLegalActions(0):
+                        nextSuccessors.append(successor.generateSuccesor(0, action))
+                
+
+            # Ghost Agent(s)
+            else:
+                for action in successor.getLegalActions(1):
+                    tempGhostSuccessors.append(successor.generateSuccesor(1, action))
+                if gameState.getNumAgents() == 3:
+                    for successor in tempGhostSuccessors:
+                        for action in successor.getLegalActions(2):
+                            nextSuccessors.append(successor.generateSuccesor(2, action))
+                else:
+                    nextSuccessors = tempGhostSuccessors
+
+            currentSuccessors = nextSuccessors
+            nextSuccessors = []
+        max = float('-inf')
+
+        for terminalSuccessor in currentSuccessors:
+            if terminalSuccessor.evaluationFunction > max:
+                max = terminalSuccessor.evaluationFunction
+
+
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
