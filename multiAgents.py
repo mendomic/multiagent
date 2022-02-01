@@ -98,15 +98,6 @@ class ReflexAgent(Agent):
             
         score += successorGameState.getScore()
             
-        #directX = -1
-        #directY = 0
-
-        #if newFood[x + directX][y + directY] == True:
-        #    score += 10000
-
-
-        
-
         for ghost in newGhostStates:
             distance = manhattanDistance(newPos, ghost.getPosition())
             if ghost.scaredTimer > distance:
