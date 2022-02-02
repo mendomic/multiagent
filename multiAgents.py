@@ -167,21 +167,21 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        agentList = []
-        for depth in range(0, self.depth):
-            for agent in range(0, gameState.getNumAgents()):
-                agentList.append(agent)
-        print(agentList)
-
         def value(state):
-            if len(agentList) == 1:
-                return state.getScore()
-            if agentList[0] == 0:
-                return maxValue(state)
-            else:
-                return minValue(state)
-            agentList.pop(0)
 
+            # Reached terminal state
+            if len(agentList) == 0:
+                return state.getScore()
+
+            # 0 = Pacman, maximizer
+            if agentList[0] == 0:
+                agentList.pop(0)
+                return maxValue(state)
+            
+            # <1 = ghost, minimizer
+            else:
+                agentList.pop(0)
+                return minValue(state)
         
         def maxValue(state):
             v = float('-inf')
@@ -192,8 +192,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 currentSuccessors.append(state.generateSuccessor(0, action))
 
             # Identify the successor with the highest score
-            for successor in state.generateSuccessor(0):
-                v = max(v, value(successor))
+            
+            for successor in currentSuccessors:
+                x = value(successor)
+                if x > v:
+                    v = x
             return v
 
         def minValue(state):
@@ -201,14 +204,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             # Get successors of the state
             currentSuccessors = []
-            for action in state.getLegalActions(0):
-                currentSuccessors.append(state.generateSuccessor(0, action))
+            for action in state.getLegalActions(agentList[0]):
+                currentSuccessors.append(state.generateSuccessor(agentList[0], action))
 
-            # Identify the successor with the highest score
-            for successor in state.generateSuccessor(0):
+            # Identify the successor with the lowest score
+            for successor in currentSuccessors:
                 v = min(v, value(successor))
             return v
         
+        # Create a list that represents the turn order for each agent
+        agentList = []
+        for depth in range(0, self.depth):
+            for agent in range(0, gameState.getNumAgents()):
+                agentList.append(agent)
+
+        # Get successors of the state
+        currentSuccessors = []
+        for action in gameState.getLegalActions(0):
+            pair = (gameState.generateSuccessor(0, action), action)
+            currentSuccessors.append(pair)
+        bestSuccessor = (currentSuccessors[0], float('-inf'))
+        for successor in currentSuccessors:
+            x,y = successor
+            succVal = value(x)
+            a,b = bestSuccessor
+            if succVal > b:
+                bestSuccessor = (successor, succVal)
+
+        # pair (state, action)
+        # list (pairs)
+        # 
+        x,y = bestSuccessor
+        a,b = x
+        return a
 
         currentSuccessors = [gameState]
         nextSuccessors = []
