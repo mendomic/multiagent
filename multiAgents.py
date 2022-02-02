@@ -168,36 +168,64 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         currentSuccessors = [gameState]
         nextSuccessors = []
+        
+        for successor in currentSuccessors:
+            for action in successor.getLegalActions(0):
+                nextSuccessors.append((successor.generateSuccessor(0, action), action))
+                
+        print("here", nextSuccessors)
+        currentSuccessors = nextSuccessors.copy()
+        nextSuccessors = []
+        print("there", currentSuccessors)
+        
+        
         tempGhostSuccessors = []
-        for level in range(1, self.depth * 2 - 1):
+        for level in range(2, self.depth * 2 - 1):
             # Pacman
             if (level % 2 == 1):
                 for successor in currentSuccessors:
-                    for action in successor.getLegalActions(0):
-                        nextSuccessors.append(successor.generateSuccesor(0, action))
-                
+                    currSuccessor,currAction = successor
+                    print(currSuccessor)
+                    print(currSuccessor.getLegalActions(0))
+                    for action in currSuccessor.getLegalActions(0):
+                        print("here")
+                        nextSuccessors.append((successor.generateSuccesor(0,action), currAction))
+                       
 
             # Ghost Agent(s)
             else:
-                for action in successor.getLegalActions(1):
-                    tempGhostSuccessors.append(successor.generateSuccesor(1, action))
+                for successor in currentSuccessors:
+                    currSuccessor,currAction = successor
+                    print("howdy",currSuccessor)
+                    for action in currSuccessor.getLegalActions(1):
+                        print("yeet")
+                        tempGhostSuccessors.append((successor.generateSuccesor(1, action), currAction))
+                    print("yoooo",tempGhostSuccessors)
                 if gameState.getNumAgents() == 3:
                     for successor in tempGhostSuccessors:
-                        for action in successor.getLegalActions(2):
-                            nextSuccessors.append(successor.generateSuccesor(2, action))
+                        currSuccessor,currAction = successor
+                        for action in currSuccessor.getLegalActions(2):
+                            nextSuccessors.append((successor.generateSuccesor(2, action), currAction))
                 else:
-                    nextSuccessors = tempGhostSuccessors
+                    nextSuccessors = tempGhostSuccessors.copy()
+                    
+                tempGhostSuccessors = []
 
-            currentSuccessors = nextSuccessors
+            currentSuccessors = nextSuccessors.copy()
             nextSuccessors = []
+            
+            
         max = float('-inf')
-
         for terminalSuccessor in currentSuccessors:
-            if terminalSuccessor.evaluationFunction > max:
-                max = terminalSuccessor.evaluationFunction
+            currSuccessor,currAction = terminalSuccessor
+            print(currSuccessor.evaluationFunction)
+            if currSuccessor.evaluationFunction > max:
+                max = terminalSuccessor
 
-
-        util.raiseNotDefined()
+        successor,action = max
+        
+        return action
+        
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
