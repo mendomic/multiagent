@@ -166,6 +166,50 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+
+        agentList = []
+        for depth in range(0, self.depth):
+            for agent in range(0, gameState.getNumAgents()):
+                agentList.append(agent)
+        print(agentList)
+
+        def value(state):
+            if len(agentList) == 1:
+                return state.getScore()
+            if agentList[0] == 0:
+                return maxValue(state)
+            else:
+                return minValue(state)
+            agentList.pop(0)
+
+        
+        def maxValue(state):
+            v = float('-inf')
+
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(0):
+                currentSuccessors.append(state.generateSuccessor(0, action))
+
+            # Identify the successor with the highest score
+            for successor in state.generateSuccessor(0):
+                v = max(v, value(successor))
+            return v
+
+        def minValue(state):
+            v = float('inf')
+
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(0):
+                currentSuccessors.append(state.generateSuccessor(0, action))
+
+            # Identify the successor with the highest score
+            for successor in state.generateSuccessor(0):
+                v = min(v, value(successor))
+            return v
+        
+
         currentSuccessors = [gameState]
         nextSuccessors = []
         
@@ -177,7 +221,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         currentSuccessors = nextSuccessors.copy()
         nextSuccessors = []
         print("there", currentSuccessors)
-        
         
         tempGhostSuccessors = []
         for level in range(2, self.depth * 2 - 1):
