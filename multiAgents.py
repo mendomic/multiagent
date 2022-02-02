@@ -166,65 +166,48 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        currentSuccessors = [gameState]
-        nextSuccessors = []
-        
-        print("num agents", gameState.getNumAgents())
-        
-        for successor in currentSuccessors:
-            for action in successor.getLegalActions(0):
-                print(type(successor))
-                nextSuccessors.append((successor.generateSuccessor(0, action), action))
-                
-        #print("here", nextSuccessors)
-        currentSuccessors = nextSuccessors.copy()
-        nextSuccessors = []
-        #print("there", currentSuccessors)
-        
-        tempGhostSuccessors = []
-        for level in range(2, self.depth * 2 - 1):
-            # Pacman
-            if (level % 2 == 1):
-                for successor in currentSuccessors:
-                    currSuccessor,currAction = successor
-                    for action in currSuccessor.getLegalActions(0):
-                        nextSuccessors.append((currSuccessor.generateSuccessor(0,action), currAction)) 
 
-            # Ghost Agent(s)
+        agentList = []
+        for depth in range(0, self.depth):
+            for agent in range(0, gameState.getNumAgents()):
+                agentList.append(agent)
+
+        def value(state):
+            if len(agentList) == 1:
+                return state.getScore()
+            if agentList[0] == 0:
+                agentList.pop(0)
+                return maxValue(state)
             else:
-                for successor in currentSuccessors:
-                    #print(successor)
-                    currSuccessor,currAction = successor
-                    #print("howdy",currSuccessor)
-                    #print(currSuccessor.getLegalActions(1))
-                    for action in currSuccessor.getLegalActions(1):
-                        #print("yeet")
-                        tempGhostSuccessors.append((currSuccessor.generateSuccessor(1, action), currAction))
-                    #print("yoooo",tempGhostSuccessors)
-                if gameState.getNumAgents() == 3:
-                    for successor in tempGhostSuccessors:
-                        currSuccessor,currAction = successor
-                        for action in currSuccessor.getLegalActions(2):
-                            nextSuccessors.append((currSuccessor.generateSuccessor(2, action), currAction))
-                else:
-                    nextSuccessors = tempGhostSuccessors.copy()
-                    
-                tempGhostSuccessors = []
+                agentList.pop(0)
+                return minValue(state)
+        
+        def maxValue(state):
+            v = float('-inf')
 
-            currentSuccessors = nextSuccessors.copy()
-            nextSuccessors = []
-            
-        maxScore = float('-inf')
-        myMax = None
-        for terminalSuccessor in currentSuccessors:
-            currSuccessor,currAction = terminalSuccessor
-            #print(self.evaluationFunction(currSuccessor))
-            if self.evaluationFunction(currSuccessor) > maxScore:
-                myMax = terminalSuccessor
-                maxScore = self.evaluationFunction(currSuccessor)
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(0):
+                currentSuccessors.append(state.generateSuccessor(0, action))
 
-        if len(currentSuccessors) == 0:
-            return 'right'
+            # Identify the successor with the highest score
+            for successor in currentSuccessors:
+                v = max(v, value(successor))
+            return v
+
+        def minValue(state):
+            v = float('inf')
+
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(agentList[0]):
+                currentSuccessors.append(state.generateSuccessor(agentList[0], action))
+
+            # Identify the successor with the highest score
+            for successor in currentSuccessors:
+                v = min(v, value(successor))
+            return v
+
 
         successor,action = myMax
         
