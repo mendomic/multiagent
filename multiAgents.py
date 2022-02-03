@@ -167,13 +167,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
+        agentList = []
+
         def value(state):
             print(agentList)
             # Reached terminal state
             if len(agentList) == 0:
                 print("end!")
-                print(state.getScore())
-                return state.getScore()
+                return self.evaluationFunction(state)
 
             # 0 = Pacman, maximizer
             if agentList[0] == 0:
@@ -186,15 +187,19 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 return minValue(state)
         
         def maxValue(state):
-            v = float('-inf')
+            if state.isWin() or state.isLose():
+                print("STATE IS TERMINAL")
+                agentList.pop(0)
+                return self.evaluationFunction(state)
 
+            v = float('-inf')
             # Get successors of the state
             currentSuccessors = []
             for action in state.getLegalActions(0):
                 currentSuccessors.append(state.generateSuccessor(0, action))
-
-            # Identify the successor with the highest score
             agentList.pop(0)
+            
+            # Identify the successor with the highest score
             for successor in currentSuccessors:
                 x = value(successor)
                 if x > v:
@@ -202,29 +207,63 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return v
 
         def minValue(state):
+            if state.isWin() or state.isLose():
+                print("STATE IS TERMINAL")
+                agentList.pop(0)
+                return self.evaluationFunction(state)
+
             v = float('inf')
 
             # Get successors of the state
             currentSuccessors = []
             for action in state.getLegalActions(agentList[0]):
                 currentSuccessors.append(state.generateSuccessor(agentList[0], action))
+            agentList.pop(0)
 
             # Identify the successor with the lowest score
-            agentList.pop(0)
             for successor in currentSuccessors:
-                v = min(v, value(successor))
+                x = value(successor)
+                if x < v:
+                    v = x
             return v
         
         # Create a list that represents the turn order for each agent
+        for depth in range(0, self.depth):
+            for agent in range(0, gameState.getNumAgents()):
+                agentList.append(agent)
+        agentList.pop(0)
 
         # Get successors of the state
+        legalMoves = gameState.getLegalActions()
+        # Choose one of the best actions
+        scores = []
+        for action in legalMoves:
+            print("smove", gameState.generateSuccessor(0, action), action)
+
+            agentList = []
+            for depth in range(0, self.depth):
+                for agent in range(0, gameState.getNumAgents()):
+                    agentList.append(agent)
+            agentList.pop(0)
+            scores.append(value(gameState.generateSuccessor(0, action)))
+        print(scores)
+
+        bestScore = float('-inf')
+        for score in scores:
+            if score > bestScore:
+                bestScore = score
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+
+        return legalMoves[chosenIndex]
+
 
         currentSuccessors = []
         agentList = []
 
         for action in gameState.getLegalActions(0):
-            pair = (gameState.generateSuccessor(0, action), action)
-            currentSuccessors.append(pair)
+            tuple = (gameState.generateSuccessor(0, action), action, float('-inf'))
+            currentSuccessors.append(tuple)
         bestSuccessor = (currentSuccessors[0], float('-inf'))
         for successor in currentSuccessors:
             print(successor)
@@ -234,6 +273,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             agentList.pop(0)
             x,y = successor
             succVal = value(x)
+            print("VALLLLLUEE: ", succVal)
             a,b = bestSuccessor
             if succVal > b:
                 bestSuccessor = (successor, succVal)
