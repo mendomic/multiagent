@@ -186,16 +186,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
             currentSuccessors = []
             for action in state.getLegalActions(0):
                 currentSuccessors.append(state.generateSuccessor(0, action))
-            self.agentList.pop(0)
+            
+            self.agentList.pop(0) # move on to next agent
+            # save agentList for future use
             currAgentList = copy.deepcopy(self.agentList)
 
             # Identify the successor with the highest score
             v = float('-inf')
             for successor in currentSuccessors:
+                # re-instate where agentList was at, helps when there is more
+                # than 1 successor
                 self.agentList = copy.deepcopy(currAgentList)
-                x = value(successor)
-                if x > v:
-                    v = copy.deepcopy(x)
+                v = max(v, value(successor))
             return v
 
         def minValue(state):
@@ -203,16 +205,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
             currentSuccessors = []
             for action in state.getLegalActions(self.agentList[0]):
                 currentSuccessors.append(state.generateSuccessor(self.agentList[0], action))
-            self.agentList.pop(0)
+            
+            self.agentList.pop(0) # move on to next agent
+            # save agentList for future use
             currAgentList = copy.deepcopy(self.agentList)
 
             # Identify the successor with the lowest score
             v = float('inf')
             for successor in currentSuccessors:
+                # re-instate where agentList was at, helps when there is more
+                # than 1 successor
                 self.agentList = copy.deepcopy(currAgentList)
-                x = value(successor)
-                if x < v:
-                    v = copy.deepcopy(x)
+                v = min(v, value(successor))
             return v
 
         # Get successors of the state
