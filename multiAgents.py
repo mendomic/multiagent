@@ -12,6 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
+from hashlib import blake2b
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -250,7 +251,85 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def value(state, a, b):
+            # Reached terminal state
+            if len(self.agentList) == 0 or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            # 0 = Pacman, maximizer
+            if self.agentList[0] == 0:
+                return maxValue(state, a, b)
+            
+            # >0 = ghost, minimizer
+            else:
+                return minValue(state, a, b)
+        
+        def maxValue(state, a, b):
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(0):
+                currentSuccessors.append(state.generateSuccessor(0, action))
+            
+            self.agentList.pop(0) # move on to next agent
+            # save agentList for future use
+            currAgentList = copy.deepcopy(self.agentList)
+
+            # Identify the successor with the highest score
+            v = float('-inf')
+            for successor in currentSuccessors:
+                # re-instate where agentList was at, helps when there is more
+                # than 1 successor
+                self.agentList = copy.deepcopy(currAgentList)
+                v = max(v, value(successor, a, b))
+                if v >= b:
+                    return v
+                a = max(a, v)
+            return v
+
+        def minValue(state, a, b):
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(self.agentList[0]):
+                currentSuccessors.append(state.generateSuccessor(self.agentList[0], action))
+            
+            self.agentList.pop(0) # move on to next agent
+            # save agentList for future use
+            currAgentList = copy.deepcopy(self.agentList)
+
+            # Identify the successor with the lowest score
+            v = float('inf')
+            for successor in currentSuccessors:
+                # re-instate where agentList was at, helps when there is more
+                # than 1 successor
+                self.agentList = copy.deepcopy(currAgentList)
+                v = min(v, value(successor, a, b))
+                if v <= a:
+                    return v
+                b = min(b, v)
+            return v
+
+        # Get successors of the state
+        legalMoves = gameState.getLegalActions()
+        
+        # get the scores 
+        scores = []
+        a = float('-inf')
+        b = float('inf')
+        for action in legalMoves:
+            self.agentList = []
+            for depth in range(0, self.depth):
+                for agent in range(0, gameState.getNumAgents()):
+                    self.agentList.append(agent)
+            self.agentList.pop(0)
+            score = value(gameState.generateSuccessor(0, action), a, b)
+            scores.append(score)
+
+        # Choose one of the best actions
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+
+        return legalMoves[chosenIndex] 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
