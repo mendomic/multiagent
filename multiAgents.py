@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import copy
 
 from game import Agent
 
@@ -166,86 +167,74 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-
+        
         def value(state):
-            print("agent list:", agentList)
             # Reached terminal state
-            if len(agentList) == 0:
-                return state.getScore()
+            if len(self.agentList) == 0 or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
 
             # 0 = Pacman, maximizer
-            if agentList[0] == 0:
-                print("pacman!")
+            if self.agentList[0] == 0:
                 return maxValue(state)
             
             # >0 = ghost, minimizer
             else:
-                print("ghost!")
                 return minValue(state)
         
         def maxValue(state):
-            v = float('-inf')
-
             # Get successors of the state
             currentSuccessors = []
             for action in state.getLegalActions(0):
                 currentSuccessors.append(state.generateSuccessor(0, action))
+            self.agentList.pop(0)
+            currAgentList = copy.deepcopy(self.agentList)
 
             # Identify the successor with the highest score
-            agentList.pop(0)
+            v = float('-inf')
             for successor in currentSuccessors:
+                self.agentList = copy.deepcopy(currAgentList)
                 x = value(successor)
                 if x > v:
-                    v = x
-
+                    v = copy.deepcopy(x)
             return v
 
         def minValue(state):
-            v = float('inf')
-
             # Get successors of the state
             currentSuccessors = []
-            for action in state.getLegalActions(agentList[0]):
-                currentSuccessors.append(state.generateSuccessor(agentList[0], action))
+            for action in state.getLegalActions(self.agentList[0]):
+                currentSuccessors.append(state.generateSuccessor(self.agentList[0], action))
+            self.agentList.pop(0)
+            currAgentList = copy.deepcopy(self.agentList)
 
             # Identify the successor with the lowest score
-            agentList.pop(0)
+            v = float('inf')
             for successor in currentSuccessors:
+                self.agentList = copy.deepcopy(currAgentList)
                 x = value(successor)
                 if x < v:
-                    v = x
+                    v = copy.deepcopy(x)
             return v
-        
-        # Create a list that represents the turn order for each agent
 
         # Get successors of the state
-
-        currentSuccessors = []
-        agentList = []
-
-        for action in gameState.getLegalActions(0):
-            pair = (gameState.generateSuccessor(0, action), action)
-            currentSuccessors.append(pair)
-        bestSuccessor = (currentSuccessors[0], float('-inf'))
-        for successor in currentSuccessors:
-            print(successor)
+        legalMoves = gameState.getLegalActions()
+        
+        # get the scores 
+        scores = []
+        for action in legalMoves:
+            self.agentList = []
             for depth in range(0, self.depth):
                 for agent in range(0, gameState.getNumAgents()):
-                    agentList.append(agent)
-            agentList.pop(0)
-            x,y = successor
-            succVal = minValue(x)
-            print("final score:",succVal)
-            a,b = bestSuccessor
-            if succVal > b:
-                bestSuccessor = (successor, succVal)
+                    self.agentList.append(agent)
+            self.agentList.pop(0)
+            score = value(gameState.generateSuccessor(0, action))
+            scores.append(score)
 
-        # pair (state, action)
-        # list (pairs)
-        # 
-        x,y = bestSuccessor
-        a,b = x
-        return b
+        # Choose one of the best actions
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+
+        return legalMoves[chosenIndex]  
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
