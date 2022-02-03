@@ -170,36 +170,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
         agentList = []
 
         def value(state):
-            print(agentList)
             # Reached terminal state
             if len(agentList) == 0:
-                print("end!")
                 return self.evaluationFunction(state)
 
             # 0 = Pacman, maximizer
             if agentList[0] == 0:
-                print("here!")
                 return maxValue(state)
             
             # <1 = ghost, minimizer
             else:
-                print("there!")
                 return minValue(state)
         
         def maxValue(state):
             if state.isWin() or state.isLose():
-                print("STATE IS TERMINAL")
-                agentList.pop(0)
                 return self.evaluationFunction(state)
-
-            v = float('-inf')
+   
             # Get successors of the state
             currentSuccessors = []
             for action in state.getLegalActions(0):
                 currentSuccessors.append(state.generateSuccessor(0, action))
             agentList.pop(0)
-            
+
             # Identify the successor with the highest score
+            v = float('-inf')
             for successor in currentSuccessors:
                 x = value(successor)
                 if x > v:
@@ -208,11 +202,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         def minValue(state):
             if state.isWin() or state.isLose():
-                print("STATE IS TERMINAL")
-                agentList.pop(0)
                 return self.evaluationFunction(state)
-
-            v = float('inf')
 
             # Get successors of the state
             currentSuccessors = []
@@ -221,6 +211,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             agentList.pop(0)
 
             # Identify the successor with the lowest score
+            v = float('inf')
             for successor in currentSuccessors:
                 x = value(successor)
                 if x < v:
@@ -238,8 +229,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         # Choose one of the best actions
         scores = []
         for action in legalMoves:
-            print("smove", gameState.generateSuccessor(0, action), action)
-
             agentList = []
             for depth in range(0, self.depth):
                 for agent in range(0, gameState.getNumAgents()):
@@ -255,95 +244,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
 
-        return legalMoves[chosenIndex]
-
-
-        currentSuccessors = []
-        agentList = []
-
-        for action in gameState.getLegalActions(0):
-            tuple = (gameState.generateSuccessor(0, action), action, float('-inf'))
-            currentSuccessors.append(tuple)
-        bestSuccessor = (currentSuccessors[0], float('-inf'))
-        for successor in currentSuccessors:
-            print(successor)
-            for depth in range(0, self.depth):
-                for agent in range(0, gameState.getNumAgents()):
-                    agentList.append(agent)
-            agentList.pop(0)
-            x,y = successor
-            succVal = value(x)
-            print("VALLLLLUEE: ", succVal)
-            a,b = bestSuccessor
-            if succVal > b:
-                bestSuccessor = (successor, succVal)
-
-        # pair (state, action)
-        # list (pairs)
-        # 
-        x,y = bestSuccessor
-        a,b = x
-        return b
-
-        currentSuccessors = [gameState]
-        nextSuccessors = []
-        
-        for successor in currentSuccessors:
-            for action in successor.getLegalActions(0):
-                nextSuccessors.append((successor.generateSuccessor(0, action), action))
-                
-        print("here", nextSuccessors)
-        currentSuccessors = nextSuccessors.copy()
-        nextSuccessors = []
-        print("there", currentSuccessors)
-        
-        tempGhostSuccessors = []
-        for level in range(2, self.depth * 2 - 1):
-            # Pacman
-            if (level % 2 == 1):
-                for successor in currentSuccessors:
-                    currSuccessor,currAction = successor
-                    print(currSuccessor)
-                    print(currSuccessor.getLegalActions(0))
-                    for action in currSuccessor.getLegalActions(0):
-                        print("here")
-                        nextSuccessors.append((successor.generateSuccesor(0,action), currAction))
-                       
-
-            # Ghost Agent(s)
-            else:
-                for successor in currentSuccessors:
-                    currSuccessor,currAction = successor
-                    print("howdy",currSuccessor)
-                    for action in currSuccessor.getLegalActions(1):
-                        print("yeet")
-                        tempGhostSuccessors.append((successor.generateSuccesor(1, action), currAction))
-                    print("yoooo",tempGhostSuccessors)
-                if gameState.getNumAgents() == 3:
-                    for successor in tempGhostSuccessors:
-                        currSuccessor,currAction = successor
-                        for action in currSuccessor.getLegalActions(2):
-                            nextSuccessors.append((successor.generateSuccesor(2, action), currAction))
-                else:
-                    nextSuccessors = tempGhostSuccessors.copy()
-                    
-                tempGhostSuccessors = []
-
-            currentSuccessors = nextSuccessors.copy()
-            nextSuccessors = []
-            
-            
-        max = float('-inf')
-        for terminalSuccessor in currentSuccessors:
-            currSuccessor,currAction = terminalSuccessor
-            print(currSuccessor.evaluationFunction)
-            if currSuccessor.evaluationFunction > max:
-                max = terminalSuccessor
-
-        successor,action = max
-        
-        return action
-        
+        return legalMoves[chosenIndex]  
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
