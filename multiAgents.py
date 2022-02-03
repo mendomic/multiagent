@@ -272,7 +272,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             
             self.agentList.pop(0) # move on to next agent
             # save agentList for future use
-            currAgentList = copy.deepcopy(self.agentList)
+            currAgentList = (copy.deepcopy(self.agentList))
 
             # Identify the successor with the highest score
             v = float('-inf')
@@ -281,6 +281,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 # than 1 successor
                 self.agentList = copy.deepcopy(currAgentList)
                 v = max(v, value(successor, a, b))
+
                 if v >= b:
                     return v
                 a = max(a, v)
@@ -289,15 +290,17 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         def minValue(state, a, b):
             # Get successors of the state
             currentSuccessors = []
+            v = float('inf')
+            currAgentList = (copy.deepcopy(self.agentList))
             for action in state.getLegalActions(self.agentList[0]):
                 currentSuccessors.append(state.generateSuccessor(self.agentList[0], action))
             
             self.agentList.pop(0) # move on to next agent
             # save agentList for future use
-            currAgentList = copy.deepcopy(self.agentList)
+            
 
             # Identify the successor with the lowest score
-            v = float('inf')
+            
             for successor in currentSuccessors:
                 # re-instate where agentList was at, helps when there is more
                 # than 1 successor
