@@ -251,63 +251,54 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        def value(state, a, b):
+        def value(state,a,b):
             # Reached terminal state
             if len(self.agentList) == 0 or state.isWin() or state.isLose():
                 return self.evaluationFunction(state)
 
             # 0 = Pacman, maximizer
             if self.agentList[0] == 0:
-                return maxValue(state, a, b)
+                return maxValue(state,a,b)
             
             # >0 = ghost, minimizer
             else:
-                return minValue(state, a, b)
+                return minValue(state,a,b)
         
-        def maxValue(state, a, b):
-            # Get successors of the state
-            currentSuccessors = []
-            for action in state.getLegalActions(0):
-                currentSuccessors.append(state.generateSuccessor(0, action))
-            
-            self.agentList.pop(0) # move on to next agent
+        def maxValue(state,a,b):
             # save agentList for future use
-            currAgentList = (copy.deepcopy(self.agentList))
-
-            # Identify the successor with the highest score
+            currAgentList = copy.deepcopy(self.agentList)
             v = float('-inf')
-            for successor in currentSuccessors:
+            
+            # Get successors of the state
+            for action in state.getLegalActions(0):
                 # re-instate where agentList was at, helps when there is more
                 # than 1 successor
                 self.agentList = copy.deepcopy(currAgentList)
-                v = max(v, value(successor, a, b))
-
-                if v >= b:
-                    return v
+                successor = state.generateSuccessor(0, action)
+                self.agentList.pop(0) # move on to next agent
+                
+                v = max(v, value(successor,a,b))
+                if v > b:
+                    break
                 a = max(a, v)
             return v
 
-        def minValue(state, a, b):
-            # Get successors of the state
-            currentSuccessors = []
-            v = float('inf')
-            currAgentList = (copy.deepcopy(self.agentList))
-            for action in state.getLegalActions(self.agentList[0]):
-                currentSuccessors.append(state.generateSuccessor(self.agentList[0], action))
-            
-            self.agentList.pop(0) # move on to next agent
+        def minValue(state,a,b):
             # save agentList for future use
-            
-
-            # Identify the successor with the lowest score
-            
-            for successor in currentSuccessors:
+            currAgentList = copy.deepcopy(self.agentList)
+            v = float('inf')
+        
+            # Get successors of the state
+            for action in state.getLegalActions(self.agentList[0]):
                 # re-instate where agentList was at, helps when there is more
                 # than 1 successor
                 self.agentList = copy.deepcopy(currAgentList)
-                v = min(v, value(successor, a, b))
-                if v <= a:
-                    return v
+                successor = state.generateSuccessor(self.agentList[0], action)
+                self.agentList.pop(0) # move on to next agent
+                
+                v = min(v, value(successor,a,b))
+                if v < a:
+                    break
                 b = min(b, v)
             return v
 
@@ -324,7 +315,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 for agent in range(0, gameState.getNumAgents()):
                     self.agentList.append(agent)
             self.agentList.pop(0)
-            score = value(gameState.generateSuccessor(0, action), a, b)
+            score = value(gameState.generateSuccessor(0, action),a,b)
+            a = max(a,score)
             scores.append(score)
 
         # Choose one of the best actions
