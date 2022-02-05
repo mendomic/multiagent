@@ -444,8 +444,6 @@ def betterEvaluationFunction(currentGameState):
         
     score += 10 / minFoodDist
             
-    
-            
     for ghost in newGhostStates:
         distance = manhattanDistance(newPos, ghost.getPosition())
         if ghost.scaredTimer > distance:
