@@ -73,7 +73,6 @@ class ReflexAgent(Agent):
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
 
@@ -82,13 +81,9 @@ class ReflexAgent(Agent):
         # Lower distance to scared ghost = higher score
         
         if successorGameState.isWin():
-            return float('inf')
-        
+            return float('inf')    
         if successorGameState.isLose():
             return float('-inf')
-
-        score = 0
-        x,y = newPos
         
         minFoodDist = float('inf')
         for food in newFood.asList():
@@ -96,8 +91,7 @@ class ReflexAgent(Agent):
             if distance < minFoodDist:
                 minFoodDist = distance
         
-        score += 10 / minFoodDist
-            
+        score = 10 / minFoodDist
         score += successorGameState.getScore()
             
         for ghost in newGhostStates:
@@ -416,35 +410,27 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-# Useful information you can extract from a GameState (pacman.py)
+    # Useful information you can extract from a GameState (pacman.py)
     newPos = currentGameState.getPacmanPosition()
     newFood = currentGameState.getFood()
     newGhostStates = currentGameState.getGhostStates()
-    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-    "*** YOUR CODE HERE ***"
 
     # Less total food = higher score
     # If newPos is in newFood, raise score
     # Lower distance to scared ghost = higher score
         
     if currentGameState.isWin():
-        return float('inf')
-        
+        return float('inf')      
     if currentGameState.isLose():
         return float('-inf')
 
-    score = 0
-    x,y = newPos
-        
     minFoodDist = float('inf')
     for food in newFood.asList():
         distance = manhattanDistance(newPos, food)
         if distance < minFoodDist:
             minFoodDist = distance
         
-    score += 10 / minFoodDist
-            
+    score = 10 / minFoodDist
     score += currentGameState.getScore()
             
     for ghost in newGhostStates:
