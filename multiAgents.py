@@ -73,7 +73,6 @@ class ReflexAgent(Agent):
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
 
@@ -82,13 +81,9 @@ class ReflexAgent(Agent):
         # Lower distance to scared ghost = higher score
         
         if successorGameState.isWin():
-            return float('inf')
-        
+            return float('inf')    
         if successorGameState.isLose():
             return float('-inf')
-
-        score = 0
-        x,y = newPos
         
         minFoodDist = float('inf')
         for food in newFood.asList():
@@ -96,8 +91,7 @@ class ReflexAgent(Agent):
             if distance < minFoodDist:
                 minFoodDist = distance
         
-        score += 10 / minFoodDist
-            
+        score = 10 / minFoodDist
         score += successorGameState.getScore()
             
         for ghost in newGhostStates:
@@ -414,41 +408,42 @@ def betterEvaluationFunction(currentGameState):
     evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
+    
+    If the game state is a win we return positive infinity. If the game state
+    is a lose, we return a negative infinity. If not win or lose we set our 
+    evaluation function score to the current game score. From there, we found 
+    the minimum distance to a food pellet and added 10 / that distance to the 
+    score. We did 10 / minFoodDist because we wanted lower distances to have 
+    a greater positive effect. Next, we found the manhattan distance to each 
+    ghost and subtracted 1 divided by the ghost distance from the score. We 
+    subtracted 1 / ghost distance because we wanted closer ghosts to have a 
+    greater negative effect.
+    
     """
     "*** YOUR CODE HERE ***"
-    # Useful information you can extract from a GameState (pacman.py)
     newPos = currentGameState.getPacmanPosition()
     newFood = currentGameState.getFood()
     newGhostStates = currentGameState.getGhostStates()
-
-    # Less total food = higher score
-    # If newPos is in newFood, raise score
-    # Lower distance to scared ghost = higher score
         
     if currentGameState.isWin():
-        return float('inf')
-        
+        return float('inf')      
     if currentGameState.isLose():
         return float('-inf')
-
-    score = 0
-    score += currentGameState.getScore()
     
-    x,y = newPos
-        
+    score = currentGameState.getScore()
+
     minFoodDist = float('inf')
     for food in newFood.asList():
         distance = manhattanDistance(newPos, food)
         if distance < minFoodDist:
             minFoodDist = distance
-        
     score += 10 / minFoodDist
             
     for ghost in newGhostStates:
         distance = manhattanDistance(newPos, ghost.getPosition())
         if ghost.scaredTimer > distance:
             score += ghost.scaredTimer - distance
-        else:
+        if distance < 6:
             score -= 1 / distance
 
     return score
