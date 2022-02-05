@@ -339,7 +339,74 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        def value(state):
+            if len(self.agentList) == 0 or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+            # 0 = Pacman, maximizer
+            if self.agentList[0] == 0:
+                return maxValue(state)
+            
+            # >0 = ghost, minimizer
+            else:
+                return expValue(state)
+        
+        def maxValue(state):
+            # Get successors of the state
+            currAgentList = copy.deepcopy(self.agentList)
+            v = float('-inf')
+
+            # Get successors of the state
+            for action in state.getLegalActions(0):
+                # re-instate where agentList was at, helps when there is more
+                # than 1 successor
+                self.agentList = copy.deepcopy(currAgentList)
+                successor = state.generateSuccessor(0, action)
+                self.agentList.pop(0) # move on to next agent
+                
+                v = max(v, value(successor))
+            return v
+        
+        def expValue(state):
+            # Get successors of the state
+            currentSuccessors = []
+            for action in state.getLegalActions(self.agentList[0]):
+                currentSuccessors.append(state.generateSuccessor(self.agentList[0], action))
+            
+            self.agentList.pop(0) # move on to next agent
+            # save agentList for future use
+            currAgentList = copy.deepcopy(self.agentList)
+
+            # Identify the successor with the lowest score
+            v = 0.0
+            p = 1.0 / len(currentSuccessors)
+            for successor in currentSuccessors:
+                # re-instate where agentList was at, helps when there is more
+                # than 1 successor
+                self.agentList = copy.deepcopy(currAgentList)
+                v += p * value(successor)
+            return v
+        
+        # Get successors of the state
+        legalMoves = gameState.getLegalActions()
+        
+        # get the scores 
+        scores = []
+        for action in legalMoves:
+            self.agentList = []
+            for depth in range(0, self.depth):
+                for agent in range(0, gameState.getNumAgents()):
+                    self.agentList.append(agent)
+            self.agentList.pop(0)
+            score = value(gameState.generateSuccessor(0, action))
+            scores.append(score)
+
+        # Choose one of the best actions
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+
+        return legalMoves[chosenIndex]  
 
 def betterEvaluationFunction(currentGameState):
     """
